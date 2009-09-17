@@ -8,8 +8,8 @@ ManualTester::ManualTester(QApplication *a)
     timer = new QTimer(this);
     message = new QMessageBox(this);
     actual = 0;
-    message->setText("The document has been modified.");
-    message->setInformativeText("Do you want to save your changes?");
+    message->setText("Inspect if the shown page is correct!");
+    message->setInformativeText("Do you want to save the actual file as expected?");
     message->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Abort);
     message->setDefaultButton(QMessageBox::Discard);
     message->move(0,0);
