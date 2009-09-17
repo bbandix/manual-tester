@@ -1,0 +1,29 @@
+README for manual-tester
+BUILD:
+Run
+    tester@linux$ qmake
+and    
+    tester@linux$ make -j10
+
+USAGE:
+
+Run 
+
+    tester@linux$ WebKitTools/Scripts/run-webkit-tests -o ~/testResultsDir
+
+in the WebKit directory then run
+
+    tester@linux$ ./generateTestFile.sh ~/testResultsDir ~/path_to_WebKit/LayoutTests > tests.txt
+
+and
+
+    tester@linux$ ./manual-tester pathToQtLauncher ~/testResultsDir tests.txt
+
+and test the stuff.
+
+
+Have fun!
+
+bbandix
+
+
