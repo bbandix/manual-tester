@@ -6,13 +6,11 @@ if (( $# < 2 )); then
     echo
     exit 1
 fi
-
-find $1 -name "*-actual.txt" | egrep -v "*xhtml*" | while read f
+rm -f tests.entry
+find $1 -name "*-actual.txt" | while read f
 do
-    find $2 -name "$(basename $f -actual.txt).html" 
+    SPATH=`echo $f | sed "s:$1::g" | sed "s:$(basename $f)::g"`
+    find $2 -name "*html" | egrep "$SPATH`basename $f -actual.txt`.html">>tests.entry
+    find $2 -name "*xhtml" | egrep "$SPATH`basename $f -actual.txt`.xhtml">>tests.entry
 done
 
-find $1 -name "*-actual.txt" | egrep "*xhtml*" | while read f
-do
-    find $2 -name "$(basename $f -actual.txt).xhtml" 
-done

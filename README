@@ -13,11 +13,11 @@ Run
 
 in the WebKit directory then run
 
-    tester@linux$ ./generateTestFile.sh ~/testResultsDir ~/path_to_WebKit/LayoutTests > tests.txt
+    tester@linux$ ./generateTestFile.sh ~/testResultsDir ~/path_to_WebKit/LayoutTests
 
 and
 
-    tester@linux$ ./manual-tester pathToQtLauncher ~/testResultsDir tests.txt
+    tester@linux$ ./manual-tester pathToQtLauncher ~/testResultsDir
 
 and test the stuff.
 
