@@ -10,7 +10,9 @@ rm -f tests.entry
 find $1 -name "*-actual.txt" | while read f
 do
     SPATH=`echo $f | sed "s:$1::g" | sed "s:$(basename $f)::g"`
-    find $2 -name "*html" | egrep "$SPATH`basename $f -actual.txt`.html">>tests.entry
-    find $2 -name "*xhtml" | egrep "$SPATH`basename $f -actual.txt`.xhtml">>tests.entry
+    find $2 -name "*html" | egrep "$SPATH$(basename $f -actual.txt).html" >>tests.entry
+    find $2 -name "*xhtml" | egrep "$SPATH$(basename $f -actual.txt).xhtml" >>tests.entry
+    find $2 -name "*xml" | egrep "$SPATH$(basename $f -actual.txt).xml" >>tests.entry
+    find $2 -name "*svg" | egrep "$SPATH$(basename $f -actual.txt).svg" >>tests.entry
 done
 
