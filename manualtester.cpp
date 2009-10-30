@@ -1,4 +1,5 @@
 #include "manualtester.h"
+#include <QFileInfo>
 
 ManualTester::ManualTester(QApplication *a)
         : QWidget()
@@ -23,6 +24,7 @@ ManualTester::ManualTester(QApplication *a)
 }
 
 void ManualTester::start(){
+    actual++;
     if (!QFile::exists(program)){
         qDebug()<< "\n" << program <<":\tProgram does not exist!" << "\n";
         exit(1);
@@ -43,8 +45,14 @@ void ManualTester::copy() {
     QString expected(path.first()+"LayoutTests/platform/qt"+path.last()+"/"
                      +info.fileName().split(".").first()+"-expected.txt");
 
+    QFileInfo expInfo(expected);
+    QDir dir(expInfo.absoluteDir().absolutePath());
+    if ( !dir.exists() )
+        dir.mkpath(expInfo.absoluteDir().absolutePath());
+
     if(QFile::remove(expected) && logging) logger<<"rm "<<expected<<"\n";
     if(QFile::copy(actual,expected) && logging) logger<<"cp "<<actual<<" "<<expected<<"\n";
+    else qDebug()<< actual;
 
 }
 
@@ -80,7 +88,6 @@ void ManualTester::setup(const QString& pgrm, const QString& tstDir, const QStri
 }
 
 void ManualTester::handleOption(Option opt){
-    actual++;
     launcher-> close();
     switch (opt){
     case Save:
@@ -93,7 +100,6 @@ void ManualTester::handleOption(Option opt){
     case Discard:
         if (actual < fileList.size()) {
           if (logging) logger<<"Skipped: "<<fileList[actual]<<"\n";
-          qDebug()<< logging;
         }
         break;
     case Abort:
