@@ -18,6 +18,7 @@ private:
     QMessageBox *message;
     QProcess *launcher;
     QProcess *runtest;
+    QProcess *showpng;
     QTimer *timer;
     QString tester;
     QString program;

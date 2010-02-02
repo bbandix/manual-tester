@@ -12,6 +12,7 @@ ManualTester::ManualTester(QApplication *a)
     fprintf(stderr, "hash=%s\n", tempFile.toAscii().data());
     launcher = new QProcess(this);
     runtest = new QProcess(this);
+    showpng = new QProcess(this);
     timer = new QTimer(this);
     message = new QMessageBox(this);
     actual = -1;
@@ -62,11 +63,18 @@ void ManualTester::copy() {
 }
 
 void ManualTester::run(const QString &arg) {
+    QFileInfo info(fileList[actual]);
+    QStringList path = info.absoluteDir().absolutePath().split("LayoutTests");
+    QString macpng(path.first()+"LayoutTests/platform/mac"+path.last()+"/"
+                     +info.fileName().split(".").first()+"-expected.png");
+    fprintf(stderr,"macpng=%s\n",macpng.toAscii().data());
+
     QStringList mainArgs = program.split(" ");
     QString pgName = mainArgs.first();
     mainArgs.removeFirst();
     runtest->execute(tester, QStringList()<< "--no-launch-safari" <<"--platform" << "mac" << "-o" << tempFile << arg);
     runtest->start(pgName, QStringList(mainArgs)<<tempFile+"/results.html");
+    showpng->start(pgName, QStringList(mainArgs)<< macpng);
     launcher->start(pgName, QStringList(mainArgs)<<arg);
     if ( !launcher->waitForStarted() )
         return;
@@ -101,6 +109,7 @@ void ManualTester::setup(const QString& tstr, const QString& pgrm, const QString
 void ManualTester::handleOption(Option opt){
     launcher-> close();
     runtest->close();
+    showpng->close();
     switch (opt){
     case Save:
         if (actual < fileList.size()) {
