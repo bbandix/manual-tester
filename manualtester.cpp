@@ -1,14 +1,20 @@
 #include "manualtester.h"
 #include <QFileInfo>
+#include <QCryptographicHash>
 
 ManualTester::ManualTester(QApplication *a)
         : QWidget()
 {
     app = a;
+    qsrand(10);
+    tempFile = QDir::tempPath()+"/tmp.tests"+QString::number(qrand()+1,16);
+    QDir::temp().mkdir(tempFile);
+    fprintf(stderr, "hash=%s\n", tempFile.toAscii().data());
     launcher = new QProcess(this);
+    runtest = new QProcess(this);
     timer = new QTimer(this);
     message = new QMessageBox(this);
-    actual = 0;
+    actual = -1;
     message->setText("Inspect if the shown page is correct!");
     message->setInformativeText("Do you want to save the actual file as expected?");
     message->setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Abort);
@@ -25,11 +31,10 @@ ManualTester::ManualTester(QApplication *a)
 
 void ManualTester::start(){
     actual++;
-    if (!QFile::exists(program)){
+    if (!QFile::exists(program.split(" ").first())){
         qDebug()<< "\n" << program <<":\tProgram does not exist!" << "\n";
         exit(1);
     }
-
     if (actual < fileList.size()) {
         run( fileList[actual] );
     } else {
@@ -56,8 +61,13 @@ void ManualTester::copy() {
 
 }
 
-void ManualTester::run(const QString &arg){
-    launcher->start(program, QStringList()<<arg);
+void ManualTester::run(const QString &arg) {
+    QStringList mainArgs = program.split(" ");
+    QString pgName = mainArgs.first();
+    mainArgs.removeFirst();
+    runtest->execute(tester, QStringList()<< "--no-launch-safari" <<"--platform" << "mac" << "-o" << tempFile << arg);
+    runtest->start(pgName, QStringList(mainArgs)<<tempFile+"/results.html");
+    launcher->start(pgName, QStringList(mainArgs)<<arg);
     if ( !launcher->waitForStarted() )
         return;
     timer->start(500);
@@ -81,7 +91,8 @@ void ManualTester::requestOption(){
     }
 }
 
-void ManualTester::setup(const QString& pgrm, const QString& tstDir, const QStringList& files){
+void ManualTester::setup(const QString& tstr, const QString& pgrm, const QString& tstDir, const QStringList& files) {
+    tester = tstr;
     program = pgrm;
     fileList = files;
     testDir.setPath(tstDir);
@@ -89,6 +100,7 @@ void ManualTester::setup(const QString& pgrm, const QString& tstDir, const QStri
 
 void ManualTester::handleOption(Option opt){
     launcher-> close();
+    runtest->close();
     switch (opt){
     case Save:
         if (actual < fileList.size()) {
@@ -103,13 +115,13 @@ void ManualTester::handleOption(Option opt){
         }
         break;
     case Abort:
-        launcher->close();
         app->setQuitOnLastWindowClosed(true);
         if (actual < fileList.size()) {
           if (logging) logger<<"Aborted at: "<<fileList[actual]<<"\n";
         }
         logger.flush();
         log.close();
+        runtest->execute("rm", QStringList()<<"-rv"<<tempFile);
         exit(0);
         break;
     default:
@@ -121,6 +133,7 @@ void ManualTester::handleOption(Option opt){
 
 ManualTester::~ManualTester()
 {
+    delete runtest;
     delete launcher;
     delete timer;
     delete message;

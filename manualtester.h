@@ -17,8 +17,11 @@ private:
     QApplication *app;
     QMessageBox *message;
     QProcess *launcher;
+    QProcess *runtest;
     QTimer *timer;
+    QString tester;
     QString program;
+    QString tempFile;
     QDir testDir;
     QStringList fileList;
     QTextStream logger;
@@ -42,7 +45,7 @@ public slots:
 public:
     ManualTester(QApplication*);
     ~ManualTester();
-    void setup(const QString&, const QString&, const QStringList&);
+    void setup(const QString&, const QString&, const QString&, const QStringList&);
     void run(const QString&);
 };
 
